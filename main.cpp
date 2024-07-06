@@ -5,7 +5,8 @@
 #include <any>
 #include <boost/filesystem.hpp>
 #include <boost/algorithm/string.hpp>
-#include "libs/dsda-doom/prboom2/src/doomdata.h"
+//#include "libs/dsda-doom/prboom2/src/doomdata.h"
+#include "mainwindow.h"
 
 using namespace std;
 using namespace boost::filesystem;
@@ -59,8 +60,11 @@ void iterDir(){
     }
 }
 
-int main(){
+int main(int argc, char* argv[]){
 
     iterDir();
+    QApplication app(argc, argv);
+
+
 
 }
