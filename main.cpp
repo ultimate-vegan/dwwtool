@@ -7,6 +7,7 @@
 #include <boost/algorithm/string.hpp>
 //#include "libs/dsda-doom/prboom2/src/doomdata.h"
 #include "mainwindow.h"
+#include <QApplication>
 
 using namespace std;
 using namespace boost::filesystem;
@@ -64,7 +65,8 @@ int main(int argc, char* argv[]){
 
     iterDir();
     QApplication app(argc, argv);
-
-
+    MainWindow win;
+    win.show();
+    app.exec();
 
 }

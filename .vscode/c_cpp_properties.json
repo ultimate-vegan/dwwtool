@@ -3,13 +3,9 @@
         {
             "name": "Linux",
             "includePath": [
-<<<<<<< Updated upstream
-                "${workspaceFolder}/**"
-=======
                 "${workspaceFolder}/**",
                 "/usr/include/qt6/QtWidgets",
                 "/usr/include/qt6"
->>>>>>> Stashed changes
             ],
             "defines": [],
             "compilerPath": "/usr/bin/clang",
