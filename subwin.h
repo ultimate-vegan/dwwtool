@@ -11,6 +11,7 @@ class SubWin : public QWidget{
         SubWin();
     
     void goBack(){
+        //https://www.youtube.com/watch?v=N5TWbeav7hI
         delete this;
     }
 };
