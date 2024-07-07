@@ -16,6 +16,16 @@
 
 idk lol install linux
 
+## Dependencies
+
+### Arch Linux
+
+`pacman -S qt5-base boost`
+
+### Other OSes
+
+idk lol install arch
+
 ## What else???
 
 right now this is just a really shitty file browser, change "wadpath" in main.cpp to a directory that actually exists on your computer to see it working. there is other code that is specific to my file structure. haven't created a config file or anything yet.
