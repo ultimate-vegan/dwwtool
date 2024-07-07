@@ -4,9 +4,18 @@
             "name": "Linux",
             "includePath": [
                 "${workspaceFolder}/**",
-                "/usr/include/qt6/QtWidgets",
-                "/usr/include/qt6"
+                "/usr/include/qt/QtWidgets/**",
+                "/usr/include/qt/**"
             ],
+            "browse": {
+                "path": [
+                    "${workspaceFolder}/**",
+                    "/usr/include/qt/QtWidgets/**",
+                    "/usr/include/qt/**"
+                ],
+                "limitSymbolsToIncludedHeaders": true,
+                "databaseFilename": ""
+            },
             "defines": [],
             "compilerPath": "/usr/bin/clang",
             "cStandard": "c17",

@@ -1,5 +1,5 @@
-HEADERS += mainwindow.h
-SOURCES += main.cpp
+HEADERS += dwwtool.h mainwin.h subwin.h
+SOURCES += main.cpp mainwin.cpp subwin.cpp
 
 INCLUDEPATH += /usr/include/qt/QtWidgets
 INCLUDEPATH += /usr/include/qt

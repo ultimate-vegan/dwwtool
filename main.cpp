@@ -6,15 +6,17 @@
 #include <boost/filesystem.hpp>
 #include <boost/algorithm/string.hpp>
 //#include "libs/dsda-doom/prboom2/src/doomdata.h"
-#include "mainwindow.h"
 #include <QApplication>
+#include <QtWidgets>
+#include "mainwin.h"
+#include "dwwtool.h"
 
 using namespace std;
 using namespace boost::filesystem;
 
 
 string wadpath = "/home/vegan/games/games_ssd/wads/doom/";
-vector<path> wadpath_content;
+vector<path> wadpath_content{};
 
 void iterDir(){
 
@@ -35,7 +37,7 @@ void iterDir(){
         }
 
         wadpath_content.push_back(folder.path());
-        cout << folder << '\n';
+        //cout << folder << '\n';
 
         //get contents of subdirs
         /*for(vector<directory_entry>::iterator it = folders.begin(); it != folders.end(); ++it){
@@ -45,7 +47,7 @@ void iterDir(){
         }*/
 
         //skip text files generated from video output
-        if(
+        /*if(
         folder.path().filename() == "sound_stderr.txt" ||
         folder.path().filename() == "mux_stderr.txt" ||
         folder.path().filename() == "mux_stdout.txt" ||
@@ -54,10 +56,10 @@ void iterDir(){
         folder.path().filename() == "video_stdout.txt"
         ){
             continue;
-        }
+        }*/
 
         //cout << content << '\n';
-        contents.push_back(folder.path());
+        //contents.push_back(folder.path());
     }
 }
 
@@ -65,8 +67,8 @@ int main(int argc, char* argv[]){
 
     iterDir();
     QApplication app(argc, argv);
-    MainWindow win;
-    win.show();
+    MainWin *win = new MainWin;
+    win -> show();
     app.exec();
 
 }
