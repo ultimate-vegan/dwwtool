@@ -2,10 +2,8 @@
 #include <filesystem>
 #include <string>
 #include <vector>
-#include <any>
 #include <boost/filesystem.hpp>
 #include <boost/algorithm/string.hpp>
-//#include "libs/dsda-doom/prboom2/src/doomdata.h"
 #include <QApplication>
 #include <QtWidgets>
 #include "mainwin.h"
@@ -13,7 +11,6 @@
 
 using namespace std;
 using namespace boost::filesystem;
-
 
 string wadpath = "/home/vegan/games/games_ssd/wads/doom/";
 vector<path> wadpath_content{};
