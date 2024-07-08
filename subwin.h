@@ -1,7 +1,7 @@
-#include <QtWidgets>
-
 #ifndef SUBWIN
 #define SUBWIN
+
+#include <QWidget>
 
 class SubWin : public QWidget{
 

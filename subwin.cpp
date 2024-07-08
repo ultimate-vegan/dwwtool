@@ -1,5 +1,4 @@
 #include "subwin.h"
-#include <QtWidgets>
 
 SubWin::SubWin(){
 

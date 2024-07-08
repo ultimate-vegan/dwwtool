@@ -1,7 +1,16 @@
 #include "mainwin.h"
 #include "dwwtool.h"
-#include <QtWidgets>
 #include <iostream>
+
+//qt widgets
+#include <QMainWindow>
+#include <QTableWidget>
+#include <QString>
+#include <QGridLayout>
+#include <QObject>
+#include <QWidget>
+#include <QTableWidgetItem>
+#include <QHeaderView>
 
 using namespace std;
 using namespace boost::filesystem;

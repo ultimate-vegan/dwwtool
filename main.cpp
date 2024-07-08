@@ -4,10 +4,11 @@
 #include <vector>
 #include <boost/filesystem.hpp>
 #include <boost/algorithm/string.hpp>
-#include <QApplication>
-#include <QtWidgets>
 #include "mainwin.h"
 #include "dwwtool.h"
+
+
+#include <QApplication>
 
 using namespace std;
 using namespace boost::filesystem;
@@ -59,6 +60,8 @@ void iterDir(){
         //contents.push_back(folder.path());
     }
 }
+
+
 
 int main(int argc, char* argv[]){
 

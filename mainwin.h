@@ -1,8 +1,18 @@
-#include <QtWidgets>
 #include <iostream>
 #include <boost/filesystem.hpp>
 #include <boost/algorithm/string.hpp>
 #include "subwin.h"
+
+//qt widgets
+#include <QMainWindow>
+#include <QTableWidget>
+#include <QTableWidgetItem>
+#include <QGridLayout>
+#include <QStringList>
+#include <QString>
+#include <QPushButton>
+#include <QObject>
+#include <QHeaderView>
 
 #ifndef MAINWIN
 #define MAINWIN

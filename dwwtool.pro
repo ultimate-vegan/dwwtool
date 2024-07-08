@@ -1,3 +1,5 @@
+QT += widgets core
+
 HEADERS += dwwtool.h mainwin.h subwin.h
 SOURCES += main.cpp mainwin.cpp subwin.cpp
 
