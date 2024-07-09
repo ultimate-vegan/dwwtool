@@ -11,7 +11,7 @@ int main(int argc, char* argv[]){
     MainWin *win = new MainWin;
     dwwtool.getCfg(win);
     dwwtool.iterDir();
-    win -> initUI();
+    win -> initTable();
     win -> show();
     app.exec();
 

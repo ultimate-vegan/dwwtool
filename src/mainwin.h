@@ -12,6 +12,8 @@
 #include <QTableWidgetItem>
 #include <QString>
 #include <QDialog>
+#include <QStackedWidget>
+#include <QLayout>
 
 
 #ifndef MAINWIN
@@ -26,15 +28,19 @@ class MainWin : public QMainWindow{
 
     public:
         MainWin();
-        void initUI();
+        void initTable();
         void enterDir(QTableWidgetItem *item);
         void cfgError();
         void openDirDialog();
         void updateCfg();
+        void goBack();
+        void showItem(QTableWidgetItem *item);
+        void clrLayout(QLayout *layout);
         QDialog *errorDialog = new QDialog;
     
     private:
         QString dir;
+        QStackedWidget *mainWidget;
 
 };
 
