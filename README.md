@@ -28,6 +28,6 @@ idk lol install arch
 
 ## What else???
 
-right now this is just a really shitty file browser, change "wadpath" in main.cpp to a directory that actually exists on your computer to see it working. there is other code that is specific to my file structure. haven't created a config file or anything yet.
+right now this is just a really shitty file browser and the config generation doesn't fully work. if you restart it after setting a WAD directory it should work.
 
 the end goal is for it to display information about doom wads, be able to execute commands for recording demos, generate youtube video descriptions, and other stuff like that. hopefully it can be useful both for me and contributors to the channel.

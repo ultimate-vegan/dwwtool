@@ -1,6 +1,7 @@
 #ifndef SUBWIN
 #define SUBWIN
 
+//qt widgets
 #include <QWidget>
 
 class SubWin : public QWidget{

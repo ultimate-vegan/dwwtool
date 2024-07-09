@@ -1,18 +1,18 @@
 #include <iostream>
+#include "subwin.h"
+
+//boost
 #include <boost/filesystem.hpp>
 #include <boost/algorithm/string.hpp>
-#include "subwin.h"
+#include <boost/property_tree/ini_parser.hpp>
+#include <boost/property_tree/ptree.hpp>
 
 //qt widgets
 #include <QMainWindow>
-#include <QTableWidget>
 #include <QTableWidgetItem>
-#include <QGridLayout>
-#include <QStringList>
 #include <QString>
-#include <QPushButton>
-#include <QObject>
-#include <QHeaderView>
+#include <QDialog>
+
 
 #ifndef MAINWIN
 #define MAINWIN
@@ -26,51 +26,15 @@ class MainWin : public QMainWindow{
 
     public:
         MainWin();
+        void initUI();
+        void enterDir(QTableWidgetItem *item);
+        void cfgError();
+        void openDirDialog();
+        void updateCfg();
+        QDialog *errorDialog = new QDialog;
     
-    void enterDir(QTableWidgetItem *item){
-            if(item){
-                //create new subwindow, add elements to it
-                SubWin *newWin = new SubWin;
-                QTableWidget *newTable = new QTableWidget;
-                newTable -> setColumnCount(1);
-                QGridLayout *layout = new QGridLayout;
-                QStringList colLabels = {"Filename"};
-                newTable -> setHorizontalHeaderLabels(colLabels);
-                string path = item -> text().toStdString();
-                int seq = 0;
-                for(directory_entry& file : directory_iterator(path)){
-                    if(
-                        //don't show files generated from video output
-                        file.path().filename() == "sound_stderr.txt" ||
-                        file.path().filename() == "mux_stderr.txt" ||
-                        file.path().filename() == "mux_stdout.txt" ||
-                        file.path().filename() == "sound_stdout.txt" ||
-                        file.path().filename() == "video_stderr.txt" ||
-                        file.path().filename() == "video_stdout.txt"
-                    ){
-                        continue;
-                    }
-                    else{
-                        QTableWidgetItem *content = new QTableWidgetItem;
-                        QString text = QString::fromStdString(file.path().filename().string());
-                        content -> setFlags(content -> flags().setFlag(Qt::ItemIsEditable, false));
-                        content -> setText(text);
-                        newTable -> insertRow(seq);
-                        newTable -> setItem(seq, 0, content);
-                        seq++;
-                    }
-                }
-                
-                newTable -> sortItems(0);
-                newTable -> horizontalHeader() -> setDefaultSectionSize(200);
-                layout -> addWidget(newTable);
-                QPushButton *backbtn = new QPushButton("Back");
-                QObject::connect(backbtn, &QPushButton::clicked, newWin, &SubWin::goBack);
-                layout -> addWidget(backbtn);
-                newWin -> setLayout(layout);
-                newWin -> show();
-            }
-    }
+    private:
+        QString dir;
 
 };
 

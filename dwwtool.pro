@@ -1,7 +1,7 @@
 QT += widgets core
 
 HEADERS += dwwtool.h mainwin.h subwin.h
-SOURCES += main.cpp mainwin.cpp subwin.cpp
+SOURCES += main.cpp mainwin.cpp subwin.cpp dwwtool.cpp
 
 INCLUDEPATH += /usr/include/qt/QtWidgets
 INCLUDEPATH += /usr/include/qt
