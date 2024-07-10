@@ -30,7 +30,7 @@ idk lol install arch
 
 ## What else???
 
-currently the only functionality is browsing folders and subdirectories
+currently the only functionality is browsing folders and subdirectories and viewing text files
 
 ## Planned Features
 
@@ -48,7 +48,7 @@ currently the only functionality is browsing folders and subdirectories
 
     - Probably some other things I can't think of
 
-- Display contents of .txt files
+- Display contents of .txt files (done)
 
 - Display image files
 
