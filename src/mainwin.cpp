@@ -246,10 +246,26 @@ void MainWin::showItem(QTableWidgetItem *item){
 
     QWidget *subWidget = mainWidget->widget(1);
     clrLayout(subWidget->findChild<QWidget*>("container")->layout());
-    string extension = path(item->text().toStdString()).extension().string();
+    QWidget *container = subWidget->findChild<QWidget*>("container");
+    string ext = path(item->text().toStdString()).extension().string();
     string filePath = subDir + "/" + item->text().toStdString();
 
-    if(boost::iequals(extension, ".txt")){
+    if(
+        //wad makers in the 90s used stupid text file extensions
+        boost::iequals(ext, ".txt")||
+        boost::iequals(ext, ".nfo")||
+        boost::iequals(ext, ".1st")||
+        boost::iequals(ext, ".add")||
+        boost::iequals(ext, ".me")||
+        boost::iequals(ext, ".diz")||
+        boost::iequals(ext, ".ion")||
+        boost::iequals(ext, ".btm")||
+        boost::iequals(ext, ".mnu")||
+        boost::iequals(ext, ".hi")||
+        boost::iequals(ext, ".doc")||
+        //todo: maybe add functionality to run .bat files in dosbox?
+        boost::iequals(ext, ".bat")
+    ){
 
         QTextBrowser *txtDisplay = new QTextBrowser;
 
@@ -259,15 +275,28 @@ void MainWin::showItem(QTableWidgetItem *item){
         string text = buff.str();
 
         txtDisplay->setText(QString::fromStdString(text));
-        subWidget->findChild<QWidget*>("container")->layout()->addWidget(txtDisplay);
+        container->layout()->addWidget(txtDisplay);
 
     }
+    else if(
+        boost::iequals(ext, ".gif")||
+        boost::iequals(ext, ".png")||
+        boost::iequals(ext, ".jpg")||
+        boost::iequals(ext, ".jpeg")||
+        boost::iequals(ext, ".bmp")
+    ){
+        QImage img(QString::fromStdString(filePath));
+        QLabel *imgDisplay = new QLabel;
+        imgDisplay->setPixmap(QPixmap::fromImage(img));
+        container->layout()->addWidget(imgDisplay);
+        container->layout()->setAlignment(imgDisplay, Qt::AlignCenter);
+    }
 
-    else if(boost::iequals(extension, ".wad")){
+    else if(boost::iequals(ext, ".wad")){
         //wad file handling goes here
     }
 
-    else if(boost::iequals(extension, ".deh")){
+    else if(boost::iequals(ext, ".deh")){
         //deh file handling goes here
     }
 }
