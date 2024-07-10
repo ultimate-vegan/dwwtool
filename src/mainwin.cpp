@@ -46,9 +46,14 @@ MainWin::MainWin()
 
     setCentralWidget(mainWidget);
 
-    //todo: replace these with some QSettings to remember window size and position
     setMinimumSize(scrw/2, scrh/2);
-    move(res.center() - this->rect().center());
+
+    if(dwwtool.settings.value("window/position").toPoint().isNull()){
+        move(res.center() - this->rect().center());
+    }
+    else{
+        move(dwwtool.settings.value("window/position").toPoint());
+    }
 
     //setup error dialog widgets
     QGridLayout *errLayout = new QGridLayout;
@@ -233,4 +238,10 @@ void MainWin::showItem(QTableWidgetItem *item){
     else if(boost::iequals(extension, ".wad")){
 
     }
+}
+
+void MainWin::closeEvent(QCloseEvent *event){
+    QPoint winPos = this->pos();
+    dwwtool.settings.setValue("window/position", winPos);
+    QMainWindow::closeEvent(event);
 }

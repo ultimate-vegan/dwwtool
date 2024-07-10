@@ -38,6 +38,7 @@ class MainWin : public QMainWindow{
         void showItem(QTableWidgetItem *item);
         //clear the layout of a widget
         void clrLayout(QLayout *layout);
+        void closeEvent(QCloseEvent *event);
         QDialog *errDialog = new QDialog;
     
     private:
