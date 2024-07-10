@@ -5,26 +5,17 @@
 
 #include <boost/filesystem.hpp>
 #include <boost/algorithm/string.hpp>
-#include <boost/property_tree/ini_parser.hpp>
-#include <boost/property_tree/ptree.hpp>
 
 //qt widgets
-#include <QMainWindow>
-#include <QTableWidget>
-#include <QString>
-#include <QGridLayout>
-#include <QHBoxLayout>
-#include <QObject>
-#include <QWidget>
-#include <QTableWidgetItem>
-#include <QHeaderView>
-#include <QFileDialog>
-#include <QLabel>
-#include <QDialog>
-//#include <QLineEdit>
-#include <QTextBrowser>
 #include <QPushButton>
-#include <QStackedWidget>
+#include <QLabel>
+#include <QScreen>
+#include <QLineEdit>
+#include <QHeaderView>
+#include <QGuiApplication>
+#include <QTextBrowser>
+#include <QFileDialog>
+#include <QGridLayout>
 
 using namespace std;
 using namespace boost::filesystem;
@@ -32,14 +23,21 @@ using namespace boost::filesystem;
 MainWin::MainWin()
 
     : mainWidget(new QStackedWidget(this)),
-      errorDialog(new QDialog(this))
+      errDialog(new QDialog(this))
 {
+
+    //get user's screen dimensions
+    QScreen *screen = QGuiApplication::primaryScreen();
+    QRect res = screen->geometry();
+    int scrw = res.width();
+    int scrh = res.height();
 
     QGridLayout *baseLayout = new QGridLayout;
     QGridLayout *subLayout = new QGridLayout;
 
-    //swap between these two to change from base dir to subdirs in the gui
+    //basewidget is for the main directory listing (mainWidget->widget(0))
     QWidget *baseWidget = new QWidget();
+    //subwidget is for subfolders (mainWidget->widget(1))
     QWidget *subWidget = new QWidget();
     baseWidget->setLayout(baseLayout);
     subWidget->setLayout(subLayout);
@@ -48,31 +46,29 @@ MainWin::MainWin()
 
     setCentralWidget(mainWidget);
 
-    //your monitor should hopefully be able to handle this
-    setMinimumSize(1280, 720);
+    //todo: replace these with some QSettings to remember window size and position
+    setMinimumSize(scrw/2, scrh/2);
+    move(res.center() - this->rect().center());
 
     //setup error dialog widgets
     QGridLayout *errLayout = new QGridLayout;
     QLabel *popupText = new QLabel("Your WAD path is not set. Please set it now.");
 
-
     QPushButton *browseBtn = new QPushButton("Browse...");
     QObject::connect(browseBtn, &QPushButton::clicked, this, &MainWin::openDirDialog);
     QPushButton *acceptBtn = new QPushButton("OK");
-    QObject::connect(acceptBtn, &QPushButton::clicked, errorDialog, &QDialog::accept);
-    QObject::connect(errorDialog, &QDialog::accepted, this, &MainWin::updateCfg);
-    QObject::connect(errorDialog, &QDialog::accepted, errorDialog, &QDialog::hide);
-    //this isn't actually a textbox yet, it will be changed to QLineEdit eventually
-    QLabel *textBox = new QLabel();
-    textBox->setObjectName("textbox");
+    QObject::connect(acceptBtn, &QPushButton::clicked, errDialog, &QDialog::accept);
+    QObject::connect(errDialog, &QDialog::accepted, this, &MainWin::updateCfg);
 
+    QLineEdit *textBox = new QLineEdit();
+    textBox->setObjectName("textbox");
 
     errLayout->addWidget(popupText);
     errLayout->addWidget(textBox);
     errLayout->addWidget(browseBtn);
     errLayout->addWidget(acceptBtn);
 
-    errorDialog->setLayout(errLayout);
+    errDialog->setLayout(errLayout);
 
 }
 
@@ -155,17 +151,12 @@ void MainWin::enterDir(QTableWidgetItem *item){
 
 void MainWin::cfgError(){
 
-    if(!exists("../cfg/config.cfg")){
-        ofstream("../cfg/config.cfg");
-    }
-
-    if(!(errorDialog->isVisible())){
-        errorDialog->open();
+    if(!(errDialog->isVisible())){
+        errDialog->open();
     }
 
     else{
-        //todo: make it possible to type a directory in instead of using the browser
-        QLabel *textbox = errorDialog->findChild<QLabel*>("textbox");
+        QLineEdit *textbox = errDialog->findChild<QLineEdit*>("textbox");
         if(textbox){
             textbox->setText(dir);
         }
@@ -185,17 +176,29 @@ void MainWin::openDirDialog(){
 
 void MainWin::updateCfg(){
 
-    boost::property_tree::ptree pt;
-    pt.add<string>("paths.wadpath", dir.toStdString());
-    boost::property_tree::write_ini("../cfg/config.cfg", pt);
+    QLineEdit *textbox = errDialog->findChild<QLineEdit*>("textbox");
 
-    dwwtool.wadpathChanged = true;
+    if(!textbox->text().isEmpty()){
+        dir = textbox -> text();
+        dwwtool.settings.setValue("paths/wadpath", dir);
 
-    //todo: this doesn't work, find a way to refresh the UI after updating the wadpath
-    wadpath = dir.toStdString();
-    wadpath_content = dwwtool.iterDir(dir.toStdString());
-    clrLayout(mainWidget->widget(0)->layout());
-    initTable(wadpath_content);
+        wadpath = dir.toStdString();
+        wadpath_content = dwwtool.iterDir(dir.toStdString());
+        clrLayout(mainWidget->widget(0)->layout());
+        initTable(wadpath_content);
+    }
+    else{
+        QDialog *popup = new QDialog;
+        QGridLayout *layout = new QGridLayout;
+        QLabel *text = new QLabel("Please set a path.");
+        QPushButton *btn = new QPushButton("OK");
+        QObject::connect(btn, &QPushButton::clicked, popup, &QDialog::accept);
+        layout->addWidget(text);
+        layout->addWidget(btn);
+        popup->setLayout(layout);
+        popup->exec();
+        cfgError();
+    }
 
 }
 

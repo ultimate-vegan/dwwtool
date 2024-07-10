@@ -1,4 +1,3 @@
-#include <iostream>
 #include "subwin.h"
 
 //boost
@@ -9,11 +8,9 @@
 
 //qt widgets
 #include <QMainWindow>
-#include <QTableWidgetItem>
-#include <QString>
 #include <QDialog>
+#include <QTableWidgetItem>
 #include <QStackedWidget>
-#include <QLayout>
 
 
 #ifndef MAINWIN
@@ -28,15 +25,20 @@ class MainWin : public QMainWindow{
 
     public:
         MainWin();
+        //sets up initial table with directory listing
         void initTable(vector<path> dirList);
         void enterDir(QTableWidgetItem *item);
+        //handle config errors
         void cfgError();
         void openDirDialog();
+        //update config file
         void updateCfg();
         void goBack();
+        //display information about selected file
         void showItem(QTableWidgetItem *item);
+        //clear the layout of a widget
         void clrLayout(QLayout *layout);
-        QDialog *errorDialog = new QDialog;
+        QDialog *errDialog = new QDialog;
     
     private:
         QString dir;

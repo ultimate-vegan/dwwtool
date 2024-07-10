@@ -8,8 +8,6 @@
 //boost
 #include <boost/filesystem.hpp>
 #include <boost/algorithm/string.hpp>
-#include <boost/property_tree/ini_parser.hpp>
-#include <boost/property_tree/ptree.hpp>
 
 //qt widgets
 #include <QMainWindow>
@@ -22,21 +20,13 @@ vector<path> wadpath_content{};
 
 void DWWTool::getCfg(MainWin *win){
 
-    boost::property_tree::ptree pt;
+    if(!settings.value("paths/wadpath").toString().isEmpty()){
+        wadpath = settings.value("paths/wadpath").toString().toStdString();
+    }
+    else{
+        win->cfgError();
+    }
 
-    try{
-        //make sure you're building from dwwtool/build or else this won't work
-        boost::property_tree::ini_parser::read_ini("../cfg/config.cfg", pt);
-        
-        try{wadpath = pt.get<string>("paths.wadpath");}
-        catch(const exception& e){
-            win -> cfgError();
-        }
-    }
-    catch (const exception& e){
-        cerr << "Error: " << e.what() << "\n";
-        win -> cfgError();
-    }
 }
 
 vector<path> DWWTool::iterDir(string dir){

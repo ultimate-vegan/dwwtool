@@ -4,6 +4,7 @@
 #include <vector>
 #include <string>
 #include <QMainWindow>
+#include <QSettings>
 
 #ifndef DWWTOOL
 #define DWWTOOL
@@ -15,7 +16,7 @@ class DWWTool {
     public:
     void getCfg(MainWin *win);
     std::vector<boost::filesystem::path> iterDir(std::string dir);
-    bool wadpathChanged = false;
+    QSettings settings;
 };
 
 extern DWWTool dwwtool;
