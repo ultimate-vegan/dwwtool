@@ -50,7 +50,7 @@ currently the only functionality is browsing folders and subdirectories and view
 
 - Display contents of .txt files (done)
 
-- Display image files
+- Display image files (done)
 
 - Interface with the DOOM WAD World spreadsheet and youtube channel to check if WADs have been played
 
