@@ -28,7 +28,7 @@ class MainWin : public QMainWindow{
 
     public:
         MainWin();
-        void initTable();
+        void initTable(vector<path> dirList);
         void enterDir(QTableWidgetItem *item);
         void cfgError();
         void openDirDialog();

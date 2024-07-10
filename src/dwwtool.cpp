@@ -39,52 +39,30 @@ void DWWTool::getCfg(MainWin *win){
     }
 }
 
-void DWWTool::iterDir(){
+vector<path> DWWTool::iterDir(string dir){
 
-    //vector<path> contents;
+    vector<path> dirList;
 
     try{
-    for(directory_entry& folder : directory_iterator(wadpath)){
+        for(directory_entry& folder : directory_iterator(dir)){
 
-        //skip hidden dirs
-        if(
-            folder.path().filename() == ".coop" ||
-            folder.path().filename() == ".dm" || 
-            folder.path().filename() == ".doesntwork" ||
-            folder.path().filename() == ".unrecorded" ||
-            //skip loose wads
-            boost::iequals(folder.path().extension().string(), ".wad")
-        )
-        {
-            continue;
+            //skip hidden dirs
+            if(
+                folder.path().filename() == ".coop" ||
+                folder.path().filename() == ".dm" || 
+                folder.path().filename() == ".doesntwork" ||
+                folder.path().filename() == ".unrecorded" ||
+                //skip loose wads
+                boost::iequals(folder.path().extension().string(), ".wad")
+            )
+            {
+                continue;
+            }
+            dirList.push_back(folder.path());
         }
-        wadpath_content.push_back(folder.path());
-    }
     }
     catch(exception& e){
         cerr << "Error: " << e.what() << '\n';
     }
-        //cout << folder << '\n';
-
-        //get contents of subdirs
-        /*for(vector<directory_entry>::iterator it = folders.begin(); it != folders.end(); ++it){
-            for(directory_entry& content : directory_iterator(it -> path())){
-                cout << content << '\n';
-            }
-        }*/
-
-        //skip text files generated from video output
-        /*if(
-        folder.path().filename() == "sound_stderr.txt" ||
-        folder.path().filename() == "mux_stderr.txt" ||
-        folder.path().filename() == "mux_stdout.txt" ||
-        folder.path().filename() == "sound_stdout.txt" ||
-        folder.path().filename() == "video_stderr.txt" ||
-        folder.path().filename() == "video_stdout.txt"
-        ){
-            continue;
-        }*/
-
-        //cout << content << '\n';
-        //contents.push_back(folder.path());
+    return dirList;
 }

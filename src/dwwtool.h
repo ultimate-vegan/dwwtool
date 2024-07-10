@@ -14,7 +14,10 @@ extern std::string wadpath;
 class DWWTool {
     public:
     void getCfg(MainWin *win);
-    void iterDir();
+    std::vector<boost::filesystem::path> iterDir(std::string dir);
+    bool wadpathChanged = false;
 };
+
+extern DWWTool dwwtool;
 
 #endif

@@ -8,3 +8,5 @@ INCLUDEPATH += /usr/include/qt
 INCLUDEPATH += libs/dsda-doom/prboom2
 
 QMAKE_LFLAGS += -lQt5Core -lQt5Widgets -lQt5Gui -lboost_filesystem -lboost_system
+
+QMAKE_CXXFLAGS += -g

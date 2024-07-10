@@ -4,14 +4,15 @@
 //qt widgets
 #include <QApplication>
 
+DWWTool dwwtool;
+
 int main(int argc, char* argv[]){
 
-    DWWTool dwwtool;
     QApplication app(argc, argv);
     MainWin *win = new MainWin;
     dwwtool.getCfg(win);
-    dwwtool.iterDir();
-    win -> initTable();
+    wadpath_content = dwwtool.iterDir(wadpath);
+    win -> initTable(wadpath_content);
     win -> show();
     app.exec();
 

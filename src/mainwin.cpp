@@ -76,7 +76,7 @@ MainWin::MainWin()
 
 }
 
-void MainWin::initTable(){
+void MainWin::initTable(vector<path> dirList){
 
     QTableWidget *table = new QTableWidget;
     table->setColumnCount(1);
@@ -85,7 +85,7 @@ void MainWin::initTable(){
     table->setHorizontalHeaderLabels(colLabels);
 
     int seq = 0;
-    for(vector<path>::iterator it = wadpath_content.begin(); it != wadpath_content.end(); ++it){
+    for(vector<path>::iterator it = dirList.begin(); it != dirList.end(); ++it){
 
         QTableWidgetItem *path = new QTableWidgetItem;
         QString text = QString::fromStdString(it->string());
@@ -189,8 +189,13 @@ void MainWin::updateCfg(){
     pt.add<string>("paths.wadpath", dir.toStdString());
     boost::property_tree::write_ini("../cfg/config.cfg", pt);
 
+    dwwtool.wadpathChanged = true;
+
     //todo: this doesn't work, find a way to refresh the UI after updating the wadpath
-    initTable();
+    wadpath = dir.toStdString();
+    wadpath_content = dwwtool.iterDir(dir.toStdString());
+    clrLayout(mainWidget->widget(0)->layout());
+    initTable(wadpath_content);
 
 }
 

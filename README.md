@@ -30,8 +30,6 @@ idk lol install arch
 
 ## What else???
 
-the config generation doesn't fully work. if you restart it after setting a WAD directory it should work.
-
 currently the only functionality is browsing folders and subdirectories
 
 ## Planned Features
