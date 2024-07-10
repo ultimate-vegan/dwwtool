@@ -28,10 +28,6 @@ i have no idea if this program will even work on windows right now, i don't have
 
 idk lol install arch
 
-## What else???
-
-currently the only functionality is browsing folders and subdirectories and viewing text files
-
 ## Planned Features
 
 - Browse directories with DOOM WADs in them (sort of finished)
