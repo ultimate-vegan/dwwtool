@@ -3,8 +3,10 @@
 #include <boost/algorithm/string.hpp>
 #include <vector>
 #include <string>
+
 #include <QMainWindow>
 #include <QSettings>
+#include <QApplication>
 
 #ifndef DWWTOOL
 #define DWWTOOL
@@ -16,7 +18,7 @@ class DWWTool {
     public:
     void getCfg(MainWin *win);
     std::vector<boost::filesystem::path> iterDir(std::string dir);
-    QSettings settings;
+    QSettings settings{"DOOM WAD World", "DWWTool"};
 };
 
 extern DWWTool dwwtool;
