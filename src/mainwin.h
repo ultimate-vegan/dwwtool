@@ -43,6 +43,7 @@ class MainWin : public QMainWindow{
     
     private:
         QString dir;
+        string subDir;
         QStackedWidget *mainWidget;
 
 };

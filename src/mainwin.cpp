@@ -1,6 +1,8 @@
 #include "mainwin.h"
 #include "dwwtool.h"
 #include <iostream>
+#include <fstream>
+#include <sstream>
 #include <any>
 
 #include <boost/filesystem.hpp>
@@ -26,11 +28,27 @@ MainWin::MainWin()
       errDialog(new QDialog(this))
 {
 
+    setWindowTitle("DOOM WAD World Tool");
+
     //get user's screen dimensions
     QScreen *screen = QGuiApplication::primaryScreen();
     QRect res = screen->geometry();
     int scrw = res.width();
     int scrh = res.height();
+
+
+    //resize according to config file
+    if(!dwwtool.settings.value("window/size").toSize().isNull()){
+        resize(dwwtool.settings.value("window/size").toSize());
+    }
+
+    //start in center of screen if position isn't saved
+    if(dwwtool.settings.value("window/position").toPoint().isNull()){
+        move(res.center() - this->rect().center());
+    }
+    else{
+        move(dwwtool.settings.value("window/position").toPoint());
+    }
 
     QGridLayout *baseLayout = new QGridLayout;
     QGridLayout *subLayout = new QGridLayout;
@@ -47,13 +65,6 @@ MainWin::MainWin()
     setCentralWidget(mainWidget);
 
     setMinimumSize(scrw/2, scrh/2);
-
-    if(dwwtool.settings.value("window/position").toPoint().isNull()){
-        move(res.center() - this->rect().center());
-    }
-    else{
-        move(dwwtool.settings.value("window/position").toPoint());
-    }
 
     //setup error dialog widgets
     QGridLayout *errLayout = new QGridLayout;
@@ -109,48 +120,54 @@ void MainWin::initTable(vector<path> dirList){
 }
 
 void MainWin::enterDir(QTableWidgetItem *item){
-                if(item){
-                //create new subwindow, add elements to it
-                //SubWin *newWin = new SubWin;
-                QTableWidget *newTable = new QTableWidget;
-                newTable->setColumnCount(1);
-                QStringList colLabels = {"Filename"};
-                newTable->setHorizontalHeaderLabels(colLabels);
-                string path = item->text().toStdString();
-                int seq = 0;
-                for(directory_entry& file : directory_iterator(path)){
-                    if(
-                        //don't show files generated from video output
-                        file.path().filename() == "sound_stderr.txt" ||
-                        file.path().filename() == "mux_stderr.txt" ||
-                        file.path().filename() == "mux_stdout.txt" ||
-                        file.path().filename() == "sound_stdout.txt" ||
-                        file.path().filename() == "video_stderr.txt" ||
-                        file.path().filename() == "video_stdout.txt"
-                    ){
-                        continue;
-                    }
-                    else{
-                        QTableWidgetItem *content = new QTableWidgetItem;
-                        QString text = QString::fromStdString(file.path().filename().string());
-                        content->setFlags(content->flags().setFlag(Qt::ItemIsEditable, false));
-                        content->setText(text);
-                        newTable->insertRow(seq);
-                        newTable->setItem(seq, 0, content);
-                        seq++;
-                    }
-                }
-                
-                newTable->sortItems(0);
-                newTable->horizontalHeader()->setDefaultSectionSize(200);
-                QPushButton *backbtn = new QPushButton("Back");
-                QObject::connect(backbtn, &QPushButton::clicked, this, &MainWin::goBack);
-                QObject::connect(newTable, &QTableWidget::itemClicked, this, &MainWin::showItem);
-                mainWidget->widget(1)->layout()->addWidget(newTable);
-                mainWidget->widget(1)->layout()->addWidget(backbtn);
-                mainWidget->widget(0)->hide();
-                mainWidget->widget(1)->show();
+
+    QTableWidget *newTable = new QTableWidget;
+    newTable->setColumnCount(1);
+    QStringList colLabels = {"Filename"};
+    newTable->setHorizontalHeaderLabels(colLabels);
+    string dirPath = item->text().toStdString();
+    subDir = dirPath;
+    int seq = 0;
+    for(directory_entry& file : directory_iterator(dirPath)){
+            if(
+                //don't show files generated from video output
+                file.path().filename() == "sound_stderr.txt" ||
+                file.path().filename() == "mux_stderr.txt" ||
+                file.path().filename() == "mux_stdout.txt" ||
+                file.path().filename() == "sound_stdout.txt" ||
+                file.path().filename() == "video_stderr.txt" ||
+                file.path().filename() == "video_stdout.txt"
+            ){
+                continue;
             }
+            else{
+                QTableWidgetItem *content = new QTableWidgetItem;
+                QString text = QString::fromStdString(file.path().filename().string());
+                content->setFlags(content->flags().setFlag(Qt::ItemIsEditable, false));
+                content->setText(text);
+                newTable->insertRow(seq);
+                newTable->setItem(seq, 0, content);
+                seq++;
+                }
+            }
+                
+    newTable->sortItems(0);
+    newTable->horizontalHeader()->setDefaultSectionSize(200);
+    QPushButton *backbtn = new QPushButton("Back");
+    QObject::connect(backbtn, &QPushButton::clicked, this, &MainWin::goBack);
+    QObject::connect(newTable, &QTableWidget::itemClicked, this, &MainWin::showItem);
+
+    //new container widget for easy clearing of display elements created by showItem
+    QWidget *container = new QWidget;
+    container->setObjectName("container");
+    QGridLayout *contLayout = new QGridLayout;
+    container->setLayout(contLayout);
+
+    mainWidget->widget(1)->layout()->addWidget(newTable);
+    mainWidget->widget(1)->layout()->addWidget(container);
+    mainWidget->widget(1)->layout()->addWidget(backbtn);
+    mainWidget->setCurrentWidget(mainWidget->widget(1));
+
 }
 
 
@@ -221,27 +238,44 @@ void MainWin::goBack(){
 
     //clear subwidget layout and return to main directory
     clrLayout(mainWidget->widget(1)->layout());
-    mainWidget->widget(1)->hide();
-    mainWidget->widget(0)->show();
+    mainWidget->setCurrentWidget(mainWidget->widget(0));
 
 }
 
 void MainWin::showItem(QTableWidgetItem *item){
 
-    string extension = path(item->text().toStdString()).extension().string();
     QWidget *subWidget = mainWidget->widget(1);
+    clrLayout(subWidget->findChild<QWidget*>("container")->layout());
+    string extension = path(item->text().toStdString()).extension().string();
+    string filePath = subDir + "/" + item->text().toStdString();
 
     if(boost::iequals(extension, ".txt")){
-        QTextBrowser *txtDisplay = new QTextBrowser;
-        subWidget->layout()->addWidget(txtDisplay);
-    }
-    else if(boost::iequals(extension, ".wad")){
 
+        QTextBrowser *txtDisplay = new QTextBrowser;
+
+        ifstream file(filePath);
+        stringstream buff;
+        buff<<file.rdbuf();
+        string text = buff.str();
+
+        txtDisplay->setText(QString::fromStdString(text));
+        subWidget->findChild<QWidget*>("container")->layout()->addWidget(txtDisplay);
+
+    }
+
+    else if(boost::iequals(extension, ".wad")){
+        //wad file handling goes here
+    }
+
+    else if(boost::iequals(extension, ".deh")){
+        //deh file handling goes here
     }
 }
 
 void MainWin::closeEvent(QCloseEvent *event){
     QPoint winPos = this->pos();
     dwwtool.settings.setValue("window/position", winPos);
+    QSize winSize = this->size();
+    dwwtool.settings.setValue("window/size", winSize);
     QMainWindow::closeEvent(event);
 }
