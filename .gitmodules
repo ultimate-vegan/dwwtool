@@ -1,0 +1,3 @@
+[submodule "libs/dsda-doom"]
+	path = libs/dsda-doom
+	url = https://github.com/kraflab/dsda-doom.git
