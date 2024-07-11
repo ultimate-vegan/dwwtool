@@ -19,6 +19,7 @@
 #include <QTextBrowser>
 #include <QFileDialog>
 #include <QGridLayout>
+#include <QMenuBar>
 
 //DOOM libraries
 extern "C"{
@@ -32,7 +33,7 @@ MainWin::MainWin()
 
     : mainWidget(new QStackedWidget(this)),
       errDialog(new QDialog(this)),
-      cfgDialog(new QDialog(this)),
+      cfgWin(new SubWin(this)),
       extApp(new QProcess(this))
 {
 
@@ -57,6 +58,21 @@ MainWin::MainWin()
     else{
         move(dwwtool.settings.value("window/position").toPoint());
     }
+
+    QMenuBar *menuBar = new QMenuBar;
+
+    //todo:add functionality for opening individual files/new directories through this menu
+    QMenu *fileMenu = new QMenu("File");
+    QMenu *editMenu = new QMenu("Edit");
+
+    QAction *prefs = new QAction("Preferences");
+    editMenu->addAction(prefs);
+    connect(prefs, &QAction::triggered, this, openCfgMenu);
+
+    menuBar->addMenu(fileMenu);
+    menuBar->addMenu(editMenu);
+
+    setMenuBar(menuBar);
 
     QGridLayout *baseLayout = new QGridLayout;
     QGridLayout *subLayout = new QGridLayout;
@@ -259,7 +275,7 @@ void MainWin::showItem(QTableWidgetItem *item){
     string filePath = subDir + "/" + item->text().toStdString();
     QString qfp = QString::fromStdString(filePath);
     //for use with prboom/dsda
-    char *cfp = filePath.data();
+    //char *cfp = filePath.data();
 
     //wad makers in the 90s used stupid text file extensions
     const regex txtPattern("^\.(txt|nfo|1st|add|me|diz|ion|btm|mnu|hi|doc|bat|it|bbs)$", regex_constants::icase);
@@ -321,4 +337,9 @@ void MainWin::openExternal(QString filePath){
 
     //todo:detect user OS and run a command that actually works on windows
     extApp->start("xdg-open", QStringList()<<filePath);
+}
+
+void MainWin::openCfgMenu(){
+
+
 }

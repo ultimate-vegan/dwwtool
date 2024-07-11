@@ -42,8 +42,9 @@ class MainWin : public QMainWindow{
         //save config values on close
         void closeEvent(QCloseEvent *event);
         void openExternal(QString filePath);
+        void openCfgMenu();
         QDialog *errDialog = new QDialog;
-        QDialog *cfgDialog = new QDialog;
+        SubWin *cfgWin = new SubWin;
         QProcess *extApp = new QProcess;
     
     private:
