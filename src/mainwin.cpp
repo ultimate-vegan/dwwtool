@@ -4,6 +4,7 @@
 #include <fstream>
 #include <sstream>
 #include <any>
+#include <regex>
 
 #include <boost/filesystem.hpp>
 #include <boost/algorithm/string.hpp>
@@ -19,13 +20,20 @@
 #include <QFileDialog>
 #include <QGridLayout>
 
+//DOOM libraries
+extern "C"{
+    //#include "libs/dsda-doom/prboom2/src/w_wad.h"
+}
+
 using namespace std;
 using namespace boost::filesystem;
 
 MainWin::MainWin()
 
     : mainWidget(new QStackedWidget(this)),
-      errDialog(new QDialog(this))
+      errDialog(new QDialog(this)),
+      cfgDialog(new QDialog(this)),
+      extApp(new QProcess(this))
 {
 
     setWindowTitle("DOOM WAD World Tool");
@@ -249,23 +257,16 @@ void MainWin::showItem(QTableWidgetItem *item){
     QWidget *container = subWidget->findChild<QWidget*>("container");
     string ext = path(item->text().toStdString()).extension().string();
     string filePath = subDir + "/" + item->text().toStdString();
+    QString qfp = QString::fromStdString(filePath);
+    //for use with prboom/dsda
+    char *cfp = filePath.data();
 
-    if(
-        //wad makers in the 90s used stupid text file extensions
-        boost::iequals(ext, ".txt")||
-        boost::iequals(ext, ".nfo")||
-        boost::iequals(ext, ".1st")||
-        boost::iequals(ext, ".add")||
-        boost::iequals(ext, ".me")||
-        boost::iequals(ext, ".diz")||
-        boost::iequals(ext, ".ion")||
-        boost::iequals(ext, ".btm")||
-        boost::iequals(ext, ".mnu")||
-        boost::iequals(ext, ".hi")||
-        boost::iequals(ext, ".doc")||
-        //todo: maybe add functionality to run .bat files in dosbox?
-        boost::iequals(ext, ".bat")
-    ){
+    //wad makers in the 90s used stupid text file extensions
+    const regex txtPattern("^\.(txt|nfo|1st|add|me|diz|ion|btm|mnu|hi|doc|bat|it|bbs)$", regex_constants::icase);
+    const regex imgPattern("^\.(gif|png|jpg|jpeg|bmp)$", regex_constants::icase);
+    smatch match;
+    
+    if(regex_match(ext, match, txtPattern)){
 
         QTextBrowser *txtDisplay = new QTextBrowser;
 
@@ -274,17 +275,15 @@ void MainWin::showItem(QTableWidgetItem *item){
         buff<<file.rdbuf();
         string text = buff.str();
 
+        QPushButton *extBtn = new QPushButton("Open in External App");
+        QObject::connect(extBtn, &QPushButton::clicked, [this,qfp]{ openExternal(qfp); });
+
         txtDisplay->setText(QString::fromStdString(text));
+        container->layout()->addWidget(extBtn);
         container->layout()->addWidget(txtDisplay);
 
     }
-    else if(
-        boost::iequals(ext, ".gif")||
-        boost::iequals(ext, ".png")||
-        boost::iequals(ext, ".jpg")||
-        boost::iequals(ext, ".jpeg")||
-        boost::iequals(ext, ".bmp")
-    ){
+    else if(regex_match(ext, match, imgPattern)){
         QImage img(QString::fromStdString(filePath));
         QLabel *imgDisplay = new QLabel;
         imgDisplay->setPixmap(QPixmap::fromImage(img));
@@ -293,7 +292,16 @@ void MainWin::showItem(QTableWidgetItem *item){
     }
 
     else if(boost::iequals(ext, ".wad")){
-        //wad file handling goes here
+
+        //need to figure out how to include dsda headers without compile errors first
+        /*size_t numwadfiles = 1;
+        wadfile_info_t wadfiles[] ={
+            {cfp, source_pwad, 0}
+        };
+        W_Init();
+        int mapsLump = W_GetNumForName("ExMy");
+        cout<<mapsLump<<'\n';*/
+        
     }
 
     else if(boost::iequals(ext, ".deh")){
@@ -307,4 +315,10 @@ void MainWin::closeEvent(QCloseEvent *event){
     QSize winSize = this->size();
     dwwtool.settings.setValue("window/size", winSize);
     QMainWindow::closeEvent(event);
+}
+
+void MainWin::openExternal(QString filePath){
+
+    //todo:detect user OS and run a command that actually works on windows
+    extApp->start("xdg-open", QStringList()<<filePath);
 }

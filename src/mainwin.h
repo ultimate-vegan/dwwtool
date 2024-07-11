@@ -11,6 +11,7 @@
 #include <QDialog>
 #include <QTableWidgetItem>
 #include <QStackedWidget>
+#include <QProcess>
 
 
 #ifndef MAINWIN
@@ -40,7 +41,10 @@ class MainWin : public QMainWindow{
         void clrLayout(QLayout *layout);
         //save config values on close
         void closeEvent(QCloseEvent *event);
+        void openExternal(QString filePath);
         QDialog *errDialog = new QDialog;
+        QDialog *cfgDialog = new QDialog;
+        QProcess *extApp = new QProcess;
     
     private:
         QString dir;
