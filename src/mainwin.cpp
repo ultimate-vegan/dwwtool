@@ -2,9 +2,6 @@
 #include "dwwtool.h"
 #include "cfgwin.h"
 #include <iostream>
-#include <fstream>
-#include <sstream>
-#include <any>
 #include <regex>
 
 #include <boost/filesystem.hpp>
@@ -147,6 +144,11 @@ void MainWin::initTable(vector<path> dirList){
 
 }
 
+/*
+there's probably a much better way to handle this that can support
+going into infinite subdirectories and displaying their files' contents
+i wrote this considering only my own file structure
+*/
 void MainWin::enterDir(QTableWidgetItem *item){
 
     QTableWidget *newTable = new QTableWidget;
@@ -313,7 +315,7 @@ void MainWin::showItem(QTableWidgetItem *item){
 
     else if(boost::iequals(ext, ".wad")){
 
-        //need to figure out how to include dsda headers without compile errors first
+        //need to figure out how to include dsda headers without compile errors before uncommenting this
         /*size_t numwadfiles = 1;
         wadfile_info_t wadfiles[] ={
             {cfp, source_pwad, 0}
@@ -324,9 +326,12 @@ void MainWin::showItem(QTableWidgetItem *item){
         
     }
 
-    else if(boost::iequals(ext, ".deh")){
+    /*else if(boost::iequals(ext, ".deh")){
         //deh file handling goes here
     }
+    else if(boost::iequals(ext, ".lmp")){
+        //lmp file handling goes here
+    }*/
 }
 
 void MainWin::closeEvent(QCloseEvent *event){
@@ -337,9 +342,8 @@ void MainWin::closeEvent(QCloseEvent *event){
     QMainWindow::closeEvent(event);
 }
 
+//todo:detect user OS and run a command that actually works on windows
 void MainWin::openExternal(QString filePath){
-
-    //todo:detect user OS and run a command that actually works on windows
     extApp->start("xdg-open", QStringList()<<filePath);
 }
 

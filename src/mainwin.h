@@ -1,8 +1,6 @@
 //boost
 #include <boost/filesystem.hpp>
 #include <boost/algorithm/string.hpp>
-#include <boost/property_tree/ini_parser.hpp>
-#include <boost/property_tree/ptree.hpp>
 
 //qt widgets
 #include <QMainWindow>
@@ -35,7 +33,7 @@ class MainWin : public QMainWindow{
         void goBack();
         //display information about selected file
         void showItem(QTableWidgetItem *item);
-        //clear the layout of a widget
+        //clear the layout of a widget, but don't delete it
         void clrLayout(QLayout *layout);
         //save config values on close
         void closeEvent(QCloseEvent *event);
