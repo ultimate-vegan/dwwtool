@@ -2,6 +2,8 @@
 #include "dwwtool.h"
 #include "cfgwin.h"
 #include <iostream>
+#include <fstream>
+#include <sstream>
 #include <regex>
 
 #include <boost/filesystem.hpp>
