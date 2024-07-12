@@ -1,5 +1,9 @@
 # DOOM WAD World Tool
 
+## Description
+
+this is a tool meant to be used by myself and contributors to my youtube channel, [doom wad world](https://www.youtube.com/channel/UCGwgSggXMjKQkp3_vup4EtA). it's primarily a method for me to learn some coding skills and waste some time on something useful. so be warned, there will be bad coding practices and amateur development within. it currently only supports linux because that's what I use.
+
 ## How to build???
 
 ### Linux
