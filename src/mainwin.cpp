@@ -1,5 +1,6 @@
 #include "mainwin.h"
 #include "dwwtool.h"
+#include "cfgwin.h"
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -20,6 +21,7 @@
 #include <QFileDialog>
 #include <QGridLayout>
 #include <QMenuBar>
+#include <QGroupBox>
 
 //DOOM libraries
 extern "C"{
@@ -33,7 +35,6 @@ MainWin::MainWin()
 
     : mainWidget(new QStackedWidget(this)),
       errDialog(new QDialog(this)),
-      cfgWin(new SubWin(this)),
       extApp(new QProcess(this))
 {
 
@@ -63,11 +64,14 @@ MainWin::MainWin()
 
     //todo:add functionality for opening individual files/new directories through this menu
     QMenu *fileMenu = new QMenu("File");
-    QMenu *editMenu = new QMenu("Edit");
+    QAction *openDir = new QAction("Open Directory");
+    QAction *openFile = new QAction("Open File");
+    fileMenu->addActions(QList{openDir, openFile});
 
+    QMenu *editMenu = new QMenu("Edit");
     QAction *prefs = new QAction("Preferences");
     editMenu->addAction(prefs);
-    connect(prefs, &QAction::triggered, this, openCfgMenu);
+    QObject::connect(prefs, &QAction::triggered, this, &MainWin::openCfgMenu);
 
     menuBar->addMenu(fileMenu);
     menuBar->addMenu(editMenu);
@@ -341,5 +345,8 @@ void MainWin::openExternal(QString filePath){
 
 void MainWin::openCfgMenu(){
 
+    CfgWin *cfgWin = new CfgWin();
+    cfgWin->setMinimumSize(this->size()/2);
+    cfgWin->show();
 
 }

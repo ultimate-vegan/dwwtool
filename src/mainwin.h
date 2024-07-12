@@ -1,5 +1,3 @@
-#include "subwin.h"
-
 //boost
 #include <boost/filesystem.hpp>
 #include <boost/algorithm/string.hpp>
@@ -44,7 +42,6 @@ class MainWin : public QMainWindow{
         void openExternal(QString filePath);
         void openCfgMenu();
         QDialog *errDialog = new QDialog;
-        SubWin *cfgWin = new SubWin;
         QProcess *extApp = new QProcess;
     
     private:
