@@ -54,6 +54,6 @@ idk lol install arch
 
 - Run user specified commands to expedite the demo recording process, and (for me) the video file creation process
 
-- (Possibly) interface with Discord/Google Forms to expedite the demo submission process
+- Interface with Discord/Google Forms to expedite the demo submission process
 
 - A UI that doesn't look terrible
