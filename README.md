@@ -20,7 +20,7 @@ this is a tool meant to be used by myself and contributors to my youtube channel
 
 idk lol install linux
 
-i have no idea if this program will even work on windows right now, i don't have a windows installation to test it on
+certain features definitely won't work on windows due to them executing commands in a linux terminal, and there is currently no code for windows support
 
 ## Dependencies
 
@@ -61,3 +61,5 @@ idk lol install arch
 - Interface with Discord/Google Forms to expedite the demo submission process
 
 - A UI that doesn't look terrible
+
+- Multi-platform support including Windows
