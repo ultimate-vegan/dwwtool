@@ -23,9 +23,7 @@
 #include <QGroupBox>
 
 //DOOM libraries
-extern "C"{
-    //#include "libs/dsda-doom/prboom2/src/w_wad.h"
-}
+//#include "WadArchive.h"
 
 using namespace std;
 using namespace boost::filesystem;
@@ -317,14 +315,7 @@ void MainWin::showItem(QTableWidgetItem *item){
 
     else if(boost::iequals(ext, ".wad")){
 
-        //need to figure out how to include dsda headers without compile errors before uncommenting this
-        /*size_t numwadfiles = 1;
-        wadfile_info_t wadfiles[] ={
-            {cfp, source_pwad, 0}
-        };
-        W_Init();
-        int mapsLump = W_GetNumForName("ExMy");
-        cout<<mapsLump<<'\n';*/
+        //slade::WadArchive wad;
         
     }
 
