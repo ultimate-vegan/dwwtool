@@ -1,3 +1,3 @@
 [submodule "libs/doomlib"]
-	path = doomlib
+	path = libs/doomlib
 	url = https://github.com/ultimate-vegan/doomlib.git
