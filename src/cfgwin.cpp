@@ -6,6 +6,7 @@
 #include <QLabel>
 #include <QLineEdit>
 #include <QPushButton>
+#include <QComboBox>
 
 CfgWin::CfgWin(){
 
@@ -34,8 +35,23 @@ CfgWin::CfgWin(){
     pathBox->addWidget(dirEdit);
     pathWidget->setLayout(pathBox);
 
+    //doom prefs
+    QWidget *doomWidget = new QWidget;
+    QVBoxLayout *doomBox = new QVBoxLayout;
+
+    QLabel *defDoomLabel = new QLabel("Default Source Port");
+    QComboBox *defDoomBox = new QComboBox;
+    defDoomBox->insertItem(0, "DSDA-Doom");
+    defDoomBox->insertItem(1, "Woof");
+    defDoomBox->insertItem(2, "Chocolate Doom");
+
+    doomBox->addWidget(defDoomLabel);
+    doomBox->addWidget(defDoomBox);
+    doomWidget->setLayout(doomBox);
+
     //add sections to main widget
     layout->addWidget(pathWidget);
+    layout->addWidget(doomWidget);
 
     //keep this on the bottom
     layout->addLayout(btnLayout);
