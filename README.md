@@ -14,7 +14,9 @@ this is a tool meant to be used by myself and contributors to my youtube channel
 
 `mkdir build && cd build`
 
-`qmake -o Makefile ../dwwtool.pro && make`
+`cmake ../ && make`
+
+`./dwwtool`
 
 ### Windows
 

@@ -1,8 +1,4 @@
 #include "mainwin.h"
-#include <boost/filesystem.hpp>
-#include <boost/algorithm/string.hpp>
-#include <vector>
-#include <string>
 
 #include <QMainWindow>
 #include <QSettings>

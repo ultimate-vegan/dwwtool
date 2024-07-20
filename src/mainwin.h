@@ -1,13 +1,11 @@
-//boost
-#include <boost/filesystem.hpp>
-#include <boost/algorithm/string.hpp>
-
 //qt widgets
 #include <QMainWindow>
 #include <QDialog>
 #include <QTableWidgetItem>
 #include <QStackedWidget>
 #include <QProcess>
+
+#include "globals.h"
 
 
 #ifndef MAINWIN
@@ -27,11 +25,6 @@ class MainWin : public QMainWindow{
         //sets up table with directory listing
         void initTable(string dir);
         void enterDir(QTableWidgetItem *item);
-        //handle config errors
-        void cfgError();
-        void openDirDialog();
-        //update config file
-        void updateCfg();
         void goBack();
         //display information about selected file
         void showItem(QTableWidgetItem *item);
@@ -41,7 +34,6 @@ class MainWin : public QMainWindow{
         void closeEvent(QCloseEvent *event);
         void openExternal(QString filePath);
         void openCfgMenu();
-        QDialog *errDialog = new QDialog;
         QProcess *extApp = new QProcess;
     
     private:

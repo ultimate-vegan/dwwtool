@@ -40,7 +40,10 @@ endforeach()
 list(REMOVE_DUPLICATES DWW_INCLUDE_DIRS)
 
 add_executable(dwwtool ${DWW_SOURCES} ${DWW_HEADERS}
-    libs/doomlib/CMakeLists.txt)
+    libs/doomlib/CMakeLists.txt
+    src/globals.h
+
+)
 
 target_include_directories(dwwtool PRIVATE ${DWW_INCLUDE_DIRS})
 target_link_libraries(dwwtool Qt5::Widgets doomlib boost_filesystem)

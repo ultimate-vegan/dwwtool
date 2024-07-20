@@ -31,7 +31,6 @@ using namespace boost::filesystem;
 MainWin::MainWin()
 
     : mainWidget(new QWidget(this)),
-      errDialog(new QDialog(this)),
       extApp(new QProcess(this))
 {
 
@@ -82,30 +81,16 @@ MainWin::MainWin()
 
     setMinimumSize(scrw/2, scrh/2);
 
-    //setup error dialog widgets
-    QGridLayout *errLayout = new QGridLayout;
-    QLabel *popupText = new QLabel("Your WAD path is not set. Please set it now.");
-
-    QPushButton *browseBtn = new QPushButton("Browse...");
-    QObject::connect(browseBtn, &QPushButton::clicked, this, &MainWin::openDirDialog);
-    QPushButton *acceptBtn = new QPushButton("OK");
-    QObject::connect(acceptBtn, &QPushButton::clicked, errDialog, &QDialog::accept);
-    QObject::connect(errDialog, &QDialog::accepted, this, &MainWin::updateCfg);
-
-    QLineEdit *textBox = new QLineEdit();
-    textBox->setObjectName("textbox");
-
-    errLayout->addWidget(popupText);
-    errLayout->addWidget(textBox);
-    errLayout->addWidget(browseBtn);
-    errLayout->addWidget(acceptBtn);
-
-    errDialog->setLayout(errLayout);
-
 }
 
 void MainWin::initUI(){
-    initTable(dwwtool.settings.value("paths/wadpath").toString().toStdString());
+    if(!dwwtool.settings.value("paths/wadpath").toString().isEmpty()){
+        initTable(dwwtool.settings.value("paths/wadpath").toString().toStdString());
+    }
+    else{
+        //will have to be changed for windows
+        initTable("/home");
+    }
 }
 
 void MainWin::initTable(string dir){
@@ -155,6 +140,7 @@ void MainWin::initTable(string dir){
     table->horizontalHeader()->setDefaultSectionSize(400);
     mainWidget->layout()->addWidget(table);
     mainWidget->layout()->addWidget(container);
+    container->hide();
     mainWidget->layout()->addWidget(backbtn);
     mainWidget->show();
 
@@ -190,19 +176,23 @@ void MainWin::showItem(QTableWidgetItem *item){
 
 
     string filePath = currDir + "/" + item->text().toStdString();
+    QWidget *container = mainWidget->findChild<QWidget*>("container");
     cout<<filePath<<'\n';
     //don't show directories
     if(is_directory(filePath)){
+        container->hide();
         return;
     }
+
     clrLayout(mainWidget->findChild<QWidget*>("container")->layout());
-    QWidget *container = mainWidget->findChild<QWidget*>("container");
+    container->show();
     string ext = path(item->text().toStdString()).extension().string();
     QString qfp = QString::fromStdString(filePath);
 
     //wad makers in the 90s used stupid text file extensions
-    const regex txtPattern("^\.(txt|nfo|1st|add|me|diz|ion|btm|mnu|hi|doc|bat|it|bbs)$", regex_constants::icase);
-    const regex imgPattern("^\.(gif|png|jpg|jpeg|bmp)$", regex_constants::icase);
+    const regex txtPattern("^\\.(txt|nfo|1st|add|me|diz|ion|btm|mnu|hi|doc|bat|it|bbs)$", regex_constants::icase);
+    const regex imgPattern("^\\.(gif|png|jpg|jpeg|bmp)$", regex_constants::icase);
+    const regex wadPattern("^\\.(wad|pwd)$", regex_constants::icase);
     smatch match;
 
     if(regex_match(ext, match, txtPattern)){
@@ -230,14 +220,11 @@ void MainWin::showItem(QTableWidgetItem *item){
         container->layout()->setAlignment(imgDisplay, Qt::AlignCenter);
     }
 
-    else if(boost::iequals(ext, ".wad")){
+    else if(regex_match(ext, match, wadPattern)){
 
         WadFile wad(filePath);
-        wad.getHeaders();
-        cout<<wad.headers.wadtype<<'\n';
-        wad.getDirEntries();
-        wad.getMaps();
-
+        QLabel *typeLabel = new QLabel(QString::fromStdString(wad.headers.wadtype));
+        container->layout()->addWidget(typeLabel);
     }
 
     /*else if(boost::iequals(ext, ".deh")){
@@ -246,58 +233,10 @@ void MainWin::showItem(QTableWidgetItem *item){
     else if(boost::iequals(ext, ".lmp")){
         //lmp file handling goes here
     }*/
-}
-
-
-void MainWin::cfgError(){
-
-    if(!(errDialog->isVisible())){
-        errDialog->open();
-    }
 
     else{
-        QLineEdit *textbox = errDialog->findChild<QLineEdit*>("textbox");
-        if(textbox){
-            textbox->setText(errDir);
-        }
-        else{
-            cout<<"Textbox not found"<<'\n';
-        }
+        container->hide();
     }
-
-}
-
-void MainWin::openDirDialog(){
-
-    errDir = QFileDialog::getExistingDirectory(this, tr("Open Directory"), "/home", QFileDialog::ShowDirsOnly);
-    cfgError();
-
-}
-
-void MainWin::updateCfg(){
-
-    QLineEdit *textbox = errDialog->findChild<QLineEdit*>("textbox");
-
-    if(!textbox->text().isEmpty()){
-        errDir = textbox -> text();
-        dwwtool.settings.setValue("paths/wadpath", errDir);
-
-        clrLayout(mainWidget->layout());
-        initTable(dwwtool.settings.value("paths/wadpath").toString().toStdString());
-    }
-    else{
-        QDialog *popup = new QDialog;
-        QGridLayout *layout = new QGridLayout;
-        QLabel *text = new QLabel("Please set a path.");
-        QPushButton *btn = new QPushButton("OK");
-        QObject::connect(btn, &QPushButton::clicked, popup, &QDialog::accept);
-        layout->addWidget(text);
-        layout->addWidget(btn);
-        popup->setLayout(layout);
-        popup->exec();
-        cfgError();
-    }
-
 }
 
 void MainWin::clrLayout(QLayout *layout){
@@ -315,6 +254,8 @@ void MainWin::closeEvent(QCloseEvent *event){
     dwwtool.settings.setValue("window/position", winPos);
     QSize winSize = this->size();
     dwwtool.settings.setValue("window/size", winSize);
+    // currently unused
+    // dwwtool.settings.setValue("paths/exitdir", QString::fromStdString(currDir));
     QMainWindow::closeEvent(event);
 }
 
