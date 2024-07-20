@@ -28,31 +28,3 @@ void DWWTool::getCfg(MainWin *win){
     }
 
 }
-
-vector<path> DWWTool::iterDir(string dir){
-
-    vector<path> dirList;
-
-    try{
-        for(directory_entry& folder : directory_iterator(dir)){
-
-            //skip hidden dirs
-            if(
-                folder.path().filename() == ".coop" ||
-                folder.path().filename() == ".dm" || 
-                folder.path().filename() == ".doesntwork" ||
-                folder.path().filename() == ".unrecorded" ||
-                //skip loose wads
-                boost::iequals(folder.path().extension().string(), ".wad")
-            )
-            {
-                continue;
-            }
-            dirList.push_back(folder.path());
-        }
-    }
-    catch(exception& e){
-        cerr << "Error: " << e.what() << '\n';
-    }
-    return dirList;
-}

@@ -4,82 +4,46 @@ project(dwwtool LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_AUTOMOC ON)
 
-
-enable_language(C)
-list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/libs/SLADE/cmake")
-list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/libs/SLADE/cmake/find_modules")
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
 
 find_package(Qt5 COMPONENTS Widgets REQUIRED)
-find_package(wxWidgets REQUIRED COMPONENTS core base)
-include(${wxWidgets_USE_FILE})
+find_package(boost_filesystem REQUIRED)
 
-add_subdirectory(libs/SLADE/src/)
+add_subdirectory(libs/doomlib)
 
-file(GLOB_RECURSE SOURCES
-
-    #DWWTool
+file(GLOB_RECURSE DWW_SOURCES
     src/*.cpp
-
-    #SLADE
-    ${PROJECT_SOURCE_DIR}/libs/SLADE/src/*.cpp
-    ${PROJECT_SOURCE_DIR}/libs/SLADE/src/Application/*.cpp
-    ${PROJECT_SOURCE_DIR}/libs/SLADE/src/Archive/*.cpp
-    ${PROJECT_SOURCE_DIR}/libs/SLADE/src/Archive/Formats/*.cpp
-    ${PROJECT_SOURCE_DIR}/libs/SLADE/src/Audio/*.cpp
-    ${PROJECT_SOURCE_DIR}/libs/SLADE/src/Game/*.cpp
-    ${PROJECT_SOURCE_DIR}/libs/SLADE/src/General/*.cpp
-    ${PROJECT_SOURCE_DIR}/libs/SLADE/src/Graphics/*.cpp
-    ${PROJECT_SOURCE_DIR}/libs/SLADE/src/MainEditor/*.cpp
-    ${PROJECT_SOURCE_DIR}/libs/SLADE/src/MapEditor/*.cpp
-    ${PROJECT_SOURCE_DIR}/libs/SLADE/src/OpenGL/*.cpp
-    ${PROJECT_SOURCE_DIR}/libs/SLADE/src/SLADEMap/*.cpp
-    ${PROJECT_SOURCE_DIR}/libs/SLADE/src/TextEditor/*.cpp
-    ${PROJECT_SOURCE_DIR}/libs/SLADE/src/UI/*.cpp
-    ${PROJECT_SOURCE_DIR}/libs/SLADE/src/Utility/*.cpp
+    libs/doomlib/common.cpp
+    libs/doomlib/doomlib.cpp
+    libs/doomlib/thing.cpp
+    libs/doomlib/wadfile.cpp
+    libs/doomlib/doommap.cpp
 )
 
-file(GLOB_RECURSE HEADERS CONFIGURE_DEPENDS
-
-        #DWWTool
-        src/*.h
-
-        #SLADE
-        ${PROJECT_SOURCE_DIR}/libs/SLADE/src/*.h
-        ${PROJECT_SOURCE_DIR}/libs/SLADE/src/Application/*.h
-        ${PROJECT_SOURCE_DIR}/libs/SLADE/src/Archive/*.h
-        ${PROJECT_SOURCE_DIR}/libs/SLADE/src/Archive/Formats/*.h
-        ${PROJECT_SOURCE_DIR}/libs/SLADE/src/Audio/*.h
-        ${PROJECT_SOURCE_DIR}/libs/SLADE/src/Game/*.h
-        ${PROJECT_SOURCE_DIR}/libs/SLADE/src/General/*.h
-        ${PROJECT_SOURCE_DIR}/libs/SLADE/src/Graphics/*.h
-        ${PROJECT_SOURCE_DIR}/libs/SLADE/src/MainEditor/*.h
-        ${PROJECT_SOURCE_DIR}/libs/SLADE/src/MapEditor/*.h
-        ${PROJECT_SOURCE_DIR}/libs/SLADE/src/OpenGL/*.h
-        ${PROJECT_SOURCE_DIR}/libs/SLADE/src/SLADEMap/*.h
-        ${PROJECT_SOURCE_DIR}/libs/SLADE/src/TextEditor/*.h
-        ${PROJECT_SOURCE_DIR}/libs/SLADE/src/UI/*.h
-        ${PROJECT_SOURCE_DIR}/libs/SLADE/src/Utility/*.h
-        ${PROJECT_SOURCE_DIR}/libs/SLADE/thirdparty/sigslot/signal.hpp
-
+file(GLOB_RECURSE DWW_HEADERS CONFIGURE_DEPENDS
+    src/*.h
+    libs/doomlib/common.h
+    libs/doomlib/doomlib.h
+    libs/doomlib/thing.h
+    libs/doomlib/wadfile.h
+    libs/doomlib/doommap.h
 )
 
-set(INCLUDE_DIRS "")
-foreach(header ${HEADERS})
+set(DWW_INCLUDE_DIRS "")
+foreach(header ${DWW_HEADERS})
     get_filename_component(header_path "${header}" DIRECTORY)
-    list(APPEND INCLUDE_DIRS "${header_path}")
+    list(APPEND DWW_INCLUDE_DIRS "${header_path}")
 endforeach()
 
-list(REMOVE_DUPLICATES INCLUDE_DIRS)
+list(REMOVE_DUPLICATES DWW_INCLUDE_DIRS)
 
-add_executable(dwwtool ${SOURCES} ${HEADERS})
+add_executable(dwwtool ${DWW_SOURCES} ${DWW_HEADERS}
+    libs/doomlib/CMakeLists.txt)
 
-target_link_libraries(dwwtool Qt5::Widgets)
-target_link_libraries(dwwtool SLADE)
-target_link_libraries(dwwtool ${wxWidgets_LIBRARIES})
-target_include_directories(dwwtool PRIVATE ${INCLUDE_DIRS})
-target_include_directories(dwwtool PRIVATE ${wxWidgets_INCLUDE_DIRS})
+target_include_directories(dwwtool PRIVATE ${DWW_INCLUDE_DIRS})
+target_link_libraries(dwwtool Qt5::Widgets doomlib boost_filesystem)
 
 include(GNUInstallDirs)
 install(TARGETS dwwtool

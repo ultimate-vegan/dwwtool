@@ -23,14 +23,14 @@
 #include <QGroupBox>
 
 //DOOM libraries
-//#include "WadArchive.h"
+#include "wadfile.h"
 
 using namespace std;
 using namespace boost::filesystem;
 
 MainWin::MainWin()
 
-    : mainWidget(new QStackedWidget(this)),
+    : mainWidget(new QWidget(this)),
       errDialog(new QDialog(this)),
       extApp(new QProcess(this))
 {
@@ -75,17 +75,8 @@ MainWin::MainWin()
 
     setMenuBar(menuBar);
 
-    QGridLayout *baseLayout = new QGridLayout;
-    QGridLayout *subLayout = new QGridLayout;
-
-    //basewidget is for the main directory listing (mainWidget->widget(0))
-    QWidget *baseWidget = new QWidget();
-    //subwidget is for subfolders (mainWidget->widget(1))
-    QWidget *subWidget = new QWidget();
-    baseWidget->setLayout(baseLayout);
-    subWidget->setLayout(subLayout);
-    mainWidget->addWidget(baseWidget);
-    mainWidget->addWidget(subWidget);
+    QGridLayout *layout = new QGridLayout;
+    mainWidget->setLayout(layout);
 
     setCentralWidget(mainWidget);
 
@@ -113,181 +104,107 @@ MainWin::MainWin()
 
 }
 
-void MainWin::initTable(vector<path> dirList){
+void MainWin::initUI(){
+    initTable(dwwtool.settings.value("paths/wadpath").toString().toStdString());
+}
+
+void MainWin::initTable(string dir){
+
+    clrLayout(mainWidget->layout());
+    currDir = dir;
+
+    vector<path> dirList;
+    for(directory_entry& folder : directory_iterator(dir)){
+        dirList.push_back(folder.path());
+    }
 
     QTableWidget *table = new QTableWidget;
     table->setColumnCount(1);
     table->setRowCount(0);
-    QStringList colLabels = {"File Path"};
+    QStringList colLabels = {"Filename"};
     table->setHorizontalHeaderLabels(colLabels);
 
     int seq = 0;
     for(vector<path>::iterator it = dirList.begin(); it != dirList.end(); ++it){
 
-        QTableWidgetItem *path = new QTableWidgetItem;
-        QString text = QString::fromStdString(it->string());
+        QTableWidgetItem *fName = new QTableWidgetItem;
+        QString text = QString::fromStdString(it->filename().string());
 
-        path->setFlags(path->flags().setFlag(Qt::ItemIsEditable, false));
-        path->setText(text);
+        fName->setFlags(fName->flags().setFlag(Qt::ItemIsEditable, false));
+        fName->setText(text);
 
         table->insertRow(seq);
-        table->setItem(seq, 0, path);
+        table->setItem(seq, 0, fName);
         seq++;
     }
 
     QObject::connect(table, &QTableWidget::itemDoubleClicked, this, &MainWin::enterDir);
 
-    table->sortItems(0);
-    table->horizontalHeader()->setDefaultSectionSize(400);
-    mainWidget->widget(0)->layout()->addWidget(table);
-    mainWidget->widget(0)->show();
 
-}
-
-/*
-there's probably a much better way to handle this that can support
-going into infinite subdirectories and displaying their files' contents
-i wrote this considering only my own file structure
-*/
-void MainWin::enterDir(QTableWidgetItem *item){
-
-    QTableWidget *newTable = new QTableWidget;
-    newTable->setColumnCount(1);
-    QStringList colLabels = {"Filename"};
-    newTable->setHorizontalHeaderLabels(colLabels);
-    string dirPath = item->text().toStdString();
-    subDir = dirPath;
-    int seq = 0;
-    for(directory_entry& file : directory_iterator(dirPath)){
-            if(
-                //don't show files generated from video output
-                file.path().filename() == "sound_stderr.txt" ||
-                file.path().filename() == "mux_stderr.txt" ||
-                file.path().filename() == "mux_stdout.txt" ||
-                file.path().filename() == "sound_stdout.txt" ||
-                file.path().filename() == "video_stderr.txt" ||
-                file.path().filename() == "video_stdout.txt"
-            ){
-                continue;
-            }
-            else{
-                QTableWidgetItem *content = new QTableWidgetItem;
-                QString text = QString::fromStdString(file.path().filename().string());
-                content->setFlags(content->flags().setFlag(Qt::ItemIsEditable, false));
-                content->setText(text);
-                newTable->insertRow(seq);
-                newTable->setItem(seq, 0, content);
-                seq++;
-                }
-            }
-                
-    newTable->sortItems(0);
-    newTable->horizontalHeader()->setDefaultSectionSize(200);
     QPushButton *backbtn = new QPushButton("Back");
     QObject::connect(backbtn, &QPushButton::clicked, this, &MainWin::goBack);
-    QObject::connect(newTable, &QTableWidget::itemClicked, this, &MainWin::showItem);
+    QObject::connect(table, &QTableWidget::itemClicked, this, &MainWin::showItem);
 
-    //new container widget for easy clearing of display elements created by showItem
+    //container widget for easy clearing of display elements created by showItem
     QWidget *container = new QWidget;
     container->setObjectName("container");
     QGridLayout *contLayout = new QGridLayout;
     container->setLayout(contLayout);
 
-    mainWidget->widget(1)->layout()->addWidget(newTable);
-    mainWidget->widget(1)->layout()->addWidget(container);
-    mainWidget->widget(1)->layout()->addWidget(backbtn);
-    mainWidget->setCurrentWidget(mainWidget->widget(1));
+    table->sortItems(0);
+    table->horizontalHeader()->setDefaultSectionSize(400);
+    mainWidget->layout()->addWidget(table);
+    mainWidget->layout()->addWidget(container);
+    mainWidget->layout()->addWidget(backbtn);
+    mainWidget->show();
 
-}
-
-
-void MainWin::cfgError(){
-
-    if(!(errDialog->isVisible())){
-        errDialog->open();
-    }
-
-    else{
-        QLineEdit *textbox = errDialog->findChild<QLineEdit*>("textbox");
-        if(textbox){
-            textbox->setText(dir);
-        }
-        else{
-            cout<<"Textbox not found"<<'\n';
-        }
-    }
-
-}
-
-void MainWin::openDirDialog(){
-
-    dir = QFileDialog::getExistingDirectory(this, tr("Open Directory"), "/home", QFileDialog::ShowDirsOnly);
-    cfgError();
-
-}
-
-void MainWin::updateCfg(){
-
-    QLineEdit *textbox = errDialog->findChild<QLineEdit*>("textbox");
-
-    if(!textbox->text().isEmpty()){
-        dir = textbox -> text();
-        dwwtool.settings.setValue("paths/wadpath", dir);
-
-        wadpath = dir.toStdString();
-        wadpath_content = dwwtool.iterDir(dir.toStdString());
-        clrLayout(mainWidget->widget(0)->layout());
-        initTable(wadpath_content);
-    }
-    else{
-        QDialog *popup = new QDialog;
-        QGridLayout *layout = new QGridLayout;
-        QLabel *text = new QLabel("Please set a path.");
-        QPushButton *btn = new QPushButton("OK");
-        QObject::connect(btn, &QPushButton::clicked, popup, &QDialog::accept);
-        layout->addWidget(text);
-        layout->addWidget(btn);
-        popup->setLayout(layout);
-        popup->exec();
-        cfgError();
-    }
-
-}
-
-void MainWin::clrLayout(QLayout *layout){
-    QLayoutItem *item;
-    while((item = layout->takeAt(0)) != nullptr){
-        if(item->widget()){
-            delete item->widget();
-        }
-        delete item;
-    }
 }
 
 void MainWin::goBack(){
 
-    //clear subwidget layout and return to main directory
-    clrLayout(mainWidget->widget(1)->layout());
-    mainWidget->setCurrentWidget(mainWidget->widget(0));
+    if(is_directory(lastDir)){
+        initTable(lastDir);
+    }
+    else{
+        return;
+    }
+
+}
+
+void MainWin::enterDir(QTableWidgetItem *item){
+
+    QString dirPath = QString::fromStdString(currDir) + '/' + item->text();
+    string strPath = dirPath.toStdString();
+    if(is_directory(strPath)){
+        lastDir = currDir;
+        currDir = strPath;
+        initTable(strPath);
+    }
+    else{
+        return;
+    }
 
 }
 
 void MainWin::showItem(QTableWidgetItem *item){
 
-    QWidget *subWidget = mainWidget->widget(1);
-    clrLayout(subWidget->findChild<QWidget*>("container")->layout());
-    QWidget *container = subWidget->findChild<QWidget*>("container");
+
+    string filePath = currDir + "/" + item->text().toStdString();
+    cout<<filePath<<'\n';
+    //don't show directories
+    if(is_directory(filePath)){
+        return;
+    }
+    clrLayout(mainWidget->findChild<QWidget*>("container")->layout());
+    QWidget *container = mainWidget->findChild<QWidget*>("container");
     string ext = path(item->text().toStdString()).extension().string();
-    string filePath = subDir + "/" + item->text().toStdString();
     QString qfp = QString::fromStdString(filePath);
-    //for use with prboom/dsda
-    //char *cfp = filePath.data();
 
     //wad makers in the 90s used stupid text file extensions
     const regex txtPattern("^\.(txt|nfo|1st|add|me|diz|ion|btm|mnu|hi|doc|bat|it|bbs)$", regex_constants::icase);
     const regex imgPattern("^\.(gif|png|jpg|jpeg|bmp)$", regex_constants::icase);
     smatch match;
-    
+
     if(regex_match(ext, match, txtPattern)){
 
         QTextBrowser *txtDisplay = new QTextBrowser;
@@ -315,8 +232,12 @@ void MainWin::showItem(QTableWidgetItem *item){
 
     else if(boost::iequals(ext, ".wad")){
 
-        //slade::WadArchive wad;
-        
+        WadFile wad(filePath);
+        wad.getHeaders();
+        cout<<wad.headers.wadtype<<'\n';
+        wad.getDirEntries();
+        wad.getMaps();
+
     }
 
     /*else if(boost::iequals(ext, ".deh")){
@@ -325,6 +246,68 @@ void MainWin::showItem(QTableWidgetItem *item){
     else if(boost::iequals(ext, ".lmp")){
         //lmp file handling goes here
     }*/
+}
+
+
+void MainWin::cfgError(){
+
+    if(!(errDialog->isVisible())){
+        errDialog->open();
+    }
+
+    else{
+        QLineEdit *textbox = errDialog->findChild<QLineEdit*>("textbox");
+        if(textbox){
+            textbox->setText(errDir);
+        }
+        else{
+            cout<<"Textbox not found"<<'\n';
+        }
+    }
+
+}
+
+void MainWin::openDirDialog(){
+
+    errDir = QFileDialog::getExistingDirectory(this, tr("Open Directory"), "/home", QFileDialog::ShowDirsOnly);
+    cfgError();
+
+}
+
+void MainWin::updateCfg(){
+
+    QLineEdit *textbox = errDialog->findChild<QLineEdit*>("textbox");
+
+    if(!textbox->text().isEmpty()){
+        errDir = textbox -> text();
+        dwwtool.settings.setValue("paths/wadpath", errDir);
+
+        clrLayout(mainWidget->layout());
+        initTable(dwwtool.settings.value("paths/wadpath").toString().toStdString());
+    }
+    else{
+        QDialog *popup = new QDialog;
+        QGridLayout *layout = new QGridLayout;
+        QLabel *text = new QLabel("Please set a path.");
+        QPushButton *btn = new QPushButton("OK");
+        QObject::connect(btn, &QPushButton::clicked, popup, &QDialog::accept);
+        layout->addWidget(text);
+        layout->addWidget(btn);
+        popup->setLayout(layout);
+        popup->exec();
+        cfgError();
+    }
+
+}
+
+void MainWin::clrLayout(QLayout *layout){
+    QLayoutItem *item;
+    while((item = layout->takeAt(0)) != nullptr){
+        if(QWidget *widget = item->widget()){
+            widget->deleteLater();
+        }
+        delete item;
+    }
 }
 
 void MainWin::closeEvent(QCloseEvent *event){

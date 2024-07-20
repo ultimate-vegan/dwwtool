@@ -22,8 +22,10 @@ class MainWin : public QMainWindow{
 
     public:
         MainWin();
-        //sets up initial table with directory listing
-        void initTable(vector<path> dirList);
+        //to be called on startup only
+        void initUI();
+        //sets up table with directory listing
+        void initTable(string dir);
         void enterDir(QTableWidgetItem *item);
         //handle config errors
         void cfgError();
@@ -43,9 +45,10 @@ class MainWin : public QMainWindow{
         QProcess *extApp = new QProcess;
     
     private:
-        QString dir;
-        string subDir;
-        QStackedWidget *mainWidget;
+        QString errDir;
+        string currDir;
+        string lastDir;
+        QWidget *mainWidget;
 
 };
 
