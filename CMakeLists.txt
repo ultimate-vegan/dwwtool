@@ -43,6 +43,8 @@ add_executable(dwwtool ${DWW_SOURCES} ${DWW_HEADERS}
     libs/doomlib/CMakeLists.txt
     src/globals.h
 
+
+
 )
 
 target_include_directories(dwwtool PRIVATE ${DWW_INCLUDE_DIRS})

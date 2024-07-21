@@ -62,7 +62,11 @@ MainWin::MainWin()
     QMenu *fileMenu = new QMenu("File");
     QAction *openDir = new QAction("Open Directory");
     QAction *openFile = new QAction("Open File");
-    fileMenu->addActions(QList{openDir, openFile});
+    QAction *openCurrDir = new QAction("Open Current Directory in File Browser");
+    //https://youtu.be/1dJXgJ1c4vY&t=124
+    string currentDir = currDir;
+    QObject::connect(openCurrDir, &QAction::triggered, this, [this, currentDir]{openExternal(QString::fromStdString(currentDir));});
+    fileMenu->addActions(QList{openDir, openFile, openCurrDir});
 
     QMenu *editMenu = new QMenu("Edit");
     QAction *prefs = new QAction("Preferences");
@@ -79,7 +83,7 @@ MainWin::MainWin()
 
     setCentralWidget(mainWidget);
 
-    setMinimumSize(scrw/2, scrh/2);
+    setMinimumSize(scrw/4, scrh/2);
 
 }
 
@@ -128,7 +132,7 @@ void MainWin::initTable(string dir){
 
     QPushButton *backbtn = new QPushButton("Back");
     QObject::connect(backbtn, &QPushButton::clicked, this, &MainWin::goBack);
-    QObject::connect(table, &QTableWidget::itemClicked, this, &MainWin::showItem);
+    QObject::connect(table, &QTableWidget::itemPressed, this, &MainWin::showItem);
 
     //container widget for easy clearing of display elements created by showItem
     QWidget *container = new QWidget;
@@ -223,8 +227,11 @@ void MainWin::showItem(QTableWidgetItem *item){
     else if(regex_match(ext, match, wadPattern)){
 
         WadFile wad(filePath);
-        QLabel *typeLabel = new QLabel(QString::fromStdString(wad.headers.wadtype));
+        QLabel *typeLabel = new QLabel("WAD type: " + QString::fromStdString(wad.headers.wadtype));
+        int nummaps = wad.levels.size();
+        QLabel *mapsLabel = new QLabel("Number of maps: " + QString::fromStdString(to_string(nummaps)));
         container->layout()->addWidget(typeLabel);
+        container->layout()->addWidget(mapsLabel);
     }
 
     /*else if(boost::iequals(ext, ".deh")){
